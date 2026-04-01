@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aman Patel | Portfolio</title>
+    <meta name="description" content="Portfolio of Aman Patel, B.Tech CSE student specializing in IoT, Cybersecurity, and Blockchain.">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ========== MULTI-SLASH SHATTER INTRO ========== -->
+    <div id="breathingIntro" class="breathing-intro">
+        <!-- Shattered Screen Container -->
+        <div class="shatter-container">
+            <!-- Black Glass Shards -->
+            <div class="shard shard-1"></div>
+            <div class="shard shard-2"></div>
+            <div class="shard shard-3"></div>
+            <div class="shard shard-4"></div>
+            <div class="shard shard-5"></div>
+            <div class="shard shard-6"></div>
+        </div>
+
+        <!-- Japanese breathing text overlay -->
+        <div class="breathing-text breathing-text-overlay">
+            <span class="breathing-kanji">獣の呼吸</span>
+            <span class="breathing-english">Beast Breathing</span>
+        </div>
+
+        <!-- Multiple Combo Slashes -->
+        <div class="glow-slash-line combo-slash-1"></div>
+        <div class="glow-slash-line combo-slash-2"></div>
+        <div class="glow-slash-line combo-slash-3"></div>
+        <div class="glow-slash-line combo-slash-final"></div>
+    </div>
+
+    <!-- Water Background -->
+    <div class="global-bg-glow">
+        <div class="glow-blob glow-left"></div>
+        <div class="glow-blob glow-right"></div>
+    </div>
+
+    <!-- Water Particle Canvas -->
+    <canvas id="waterCanvas"></canvas>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar floating-nav" id="navbar">
+        <div class="nav-container">
+            <a href="#hero" class="logo" data-text="Aman">Aman</a>
+            
+            <ul class="nav-links">
+                <li><a href="#hero" class="active">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+
+            <div class="nav-socials">
+                <a href="https://github.com/blackcoderh4k" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/aman-patel-55994628b" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+
+            <div class="hamburger">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero section hero-centered">
+        <!-- Huge Background Text -->
+        <h1 class="hero-bg-text">Hi! I'm Aman Patel</h1>
+
+        <!-- Centered Character Visual (Now in standard document flow to push content down) -->
+        <div class="hero-visual-centered">
+            <div class="avatar-glow"></div>
+            <!-- Ambient drifting mist behind character -->
+            <div class="ambient-mist mist-a"></div>
+            <div class="ambient-mist mist-b"></div>
+            <img src="assets/inosuke.png" alt="Inosuke Hashibira" class="hero-avatar-img">
+        </div>
+
+        <div class="container hero-content-centered">
+            <!-- Content below character -->
+            <div class="hero-content">
+                <h2 class="typing-text">I am a <span class="typed-words"></span><span class="cursor">_</span></h2>
+                <div class="hero-cta">
+                    <a href="#contact" class="btn secondary-btn rounded-btn">Contact</a>
+                    <a href="#about" class="btn primary-btn rounded-btn">Who I'm</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="scroll-indicator">
+            <div class="mouse"></div>
+            <p>Scroll</p>
+        </div>
+    </section>
+
+    <!-- Water Wave Divider -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+            <path d="M0,30 C360,80 720,0 1080,40 C1260,55 1380,30 1440,20 L1440,80 L0,80 Z" fill="rgba(79,195,247,0.03)"/>
+            <path d="M0,50 C320,10 640,70 960,30 C1200,10 1380,50 1440,40 L1440,80 L0,80 Z" fill="rgba(79,195,247,0.02)"/>
+        </svg>
+    </div>
+
+    <!-- About Section -->
+    <section id="about" class="about section">
+        <div class="container">
+            <div class="section-title">
+                <h2>About Me</h2>
+                <div class="line"></div>
+            </div>
+            
+            <div class="about-content">
+                <div class="about-text glass-card">
+                    <p>Passionate B.Tech CSE student specializing in <strong>IoT, Cybersecurity, and Blockchain</strong> with hands-on experience in secure applications, full-stack AI development, and Android development.</p>
+                    <p>Proficient in Python/Flask/React full-stack, Docker containerization, MongoDB NoSQL, and AI/ML tools like DeepFace and Groq LLaMA.</p>
+                    <p>Seeking internships or entry-level roles in software development, IoT security, or AI systems where I can build impactful tech.</p>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            <h3 class="counter" data-target="4">0</h3>
+                            <p>Major Projects</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3 class="counter" data-target="5">0</h3>
+                            <p>Certifications</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3 class="counter" data-target="15">0</h3>
+                            <p>Tech Skills</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="about-visual">
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <span class="btn-close"></span>
+                            <span class="btn-min"></span>
+                            <span class="btn-max"></span>
+                            <span class="terminal-title">aman@sysadmin:~</span>
+                        </div>
+                        <div class="terminal-body">
+                            <p><span class="prompt">aman@sysadmin:~$</span> whoami</p>
+                            <p class="output">Aman Patel | B.Tech CSE | CyberSec Enthusiast</p>
+                            <p><span class="prompt">aman@sysadmin:~$</span> contact --info</p>
+                            <p class="output">
+                                Email: patelaman10052005@gmail.com<br>
+                                Phone: +91 9399857423<br>
+                                Location: Jabalpur, MP, India
+                            </p>
+                            <p><span class="prompt">aman@sysadmin:~$</span> <span class="blink">_</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Water Wave Divider -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+            <path d="M0,40 C240,70 480,10 720,50 C960,80 1200,20 1440,35 L1440,80 L0,80 Z" fill="rgba(79,195,247,0.03)"/>
+        </svg>
+    </div>
+
+    <!-- Skills Section -->
+    <section id="skills" class="skills section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Tech Stack</h2>
+                <div class="line"></div>
+            </div>
+        </div>
+
+        <div class="skills-pyramid">
+            <div class="pyramid-glow"></div>
+            <!-- Row 1: 5 items -->
+            <div class="pyramid-row" data-row="1">
+                <div class="skill-icon-badge" style="--glow-color: #3776AB;" title="Python">
+                    <i class="fab fa-python"></i>
+                    <span>Python</span>
+                </div>
+                <div class="skill-icon-badge" style="--glow-color: #F7DF1E;" title="JavaScript">
+                    <i class="fab fa-js"></i>
+                    <span>JavaScript</span>
+                </div>
+                <div class="skill-icon-badge" style="--glow-color: #61DAFB;" title="React">
+                    <i class="fab fa-react"></i>
+                    <span>React</span>
+                </div>
+                <div class="skill-icon-badge" style="--glow-color: #339933;" title="Node.js">
+                    <i class="fab fa-node-js"></i>
+                    <span>Node.js</span>
+                </div>
+                <div class="skill-icon-badge" style="--glow-color: #47A248;" title="MongoDB">
+                    <i class="fas fa-leaf"></i>
+                    <span>MongoDB</span>
+                </div>
+            </div>
+            <!-- Row 2: 4 items -->
+            <div class="pyramid-row" data-row="2">
+                <div class="skill-icon-badge" style="--glow-color: #ffffff;" title="Git/GitHub">
+                    <i class="fab fa-github"></i>
+                    <span>Git/GitHub</span>
+                </div>
+                <div class="skill-icon-badge" style="--glow-color: #3DDC84;" title="Android">
+                    <i class="fab fa-android"></i>
+                    <span>Android</span>
+                </div>
+                <div class="skill-icon-badge" style="--glow-color: #2496ED;" title="Docker">
+                    <i class="fab fa-docker"></i>
+                    <span>Docker</span>
+                </div>
+                <div class="skill-icon-badge" style="--glow-color: #E34F26;" title="HTML5">
+                    <i class="fab fa-html5"></i>
+                    <span>HTML5</span>
+                </div>
+            </div>
+            <!-- Row 3: 3 items -->
+            <div class="pyramid-row" data-row="3">
+                <div class="skill-icon-badge" style="--glow-color: #00a4d6;" title="DeepFace AI">
+                    <i class="fas fa-robot"></i>
+                    <span>DeepFace AI</span>
+                </div>
+                <div class="skill-icon-badge" style="--glow-color: #4EAA25;" title="Linux/Bash">
+                    <i class="fas fa-terminal"></i>
+                    <span>Linux/Bash</span>
+                </div>
+                <div class="skill-icon-badge" style="--glow-color: #CC6699;" title="Flask">
+                    <i class="fas fa-flask"></i>
+                    <span>Flask</span>
+                </div>
+            </div>
+            <!-- Row 4: 1 item -->
+            <div class="pyramid-row" data-row="4">
+                <div class="skill-icon-badge" style="--glow-color: #4FC3F7;" title="Cybersecurity">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>CyberSec</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Water Wave Divider -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+            <path d="M0,20 C360,70 720,10 1080,50 C1260,65 1380,25 1440,30 L1440,80 L0,80 Z" fill="rgba(79,195,247,0.03)"/>
+            <path d="M0,45 C320,15 640,65 960,25 C1200,5 1380,55 1440,45 L1440,80 L0,80 Z" fill="rgba(79,195,247,0.02)"/>
+        </svg>
+    </div>
+
+    <!-- Projects Section -->
+    <section id="projects" class="projects section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Deployed Operations</h2>
+                <div class="line"></div>
+            </div>
+
+            <div class="project-container">
+                <!-- Project 1 -->
+                <div class="project-card glass-card">
+                    <div class="project-image">
+                        <img src="assets/project-ai-photo.png" alt="AI Photo Management System">
+                        <div class="project-image-overlay"></div>
+                    </div>
+                    <div class="project-content">
+                        <p class="project-overline">Featured AI Project</p>
+                        <h3 class="project-title">AI-Powered Photo Management System</h3>
+                        <div class="project-description">
+                            <p>Built full-stack AI photo manager with automatic face recognition using DeepFace and NLP search via Groq LLaMA chatbot. Implemented async Celery/Redis processing for non-blocking uploads and containerized the entire stack with Docker Compose.</p>
+                        </div>
+                        <ul class="project-tech-list">
+                            <li>Python/Flask</li>
+                            <li>React</li>
+                            <li>Docker</li>
+                            <li>DeepFace</li>
+                            <li>PostgreSQL</li>
+                            <li>Redis</li>
+                        </ul>
+                        <div class="project-links">
+                            <a href="https://github.com/blackcoderh4k" target="_blank" aria-label="GitHub Repo"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="project-card glass-card">
+                    <div class="project-image">
+                        <div class="project-image-placeholder" style="--accent: #4FC3F7;">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="project-image-overlay"></div>
+                    </div>
+                    <div class="project-content">
+                        <p class="project-overline">Cybersecurity Tool</p>
+                        <h3 class="project-title">SecureDataDeletion Tool</h3>
+                        <div class="project-description">
+                            <p>Designed a Python-based secure data deletion utility using multi-pass overwrite patterns for sensitive files. Implemented file shredding techniques aligned with industry-standard data protection practices to prevent recovery.</p>
+                        </div>
+                        <ul class="project-tech-list">
+                            <li>Python</li>
+                            <li>Cryptography</li>
+                            <li>File Systems</li>
+                            <li>CLI</li>
+                        </ul>
+                        <div class="project-links">
+                            <a href="https://github.com/blackcoderh4k/SecureDataDeletion" target="_blank" aria-label="GitHub Repo"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="project-card glass-card">
+                    <div class="project-image">
+                        <img src="assets/project-jarvis.png" alt="JARVIS AI Assistant">
+                        <div class="project-image-overlay"></div>
+                    </div>
+                    <div class="project-content">
+                        <p class="project-overline">AI Voice Technology</p>
+                        <h3 class="project-title">JARVIS Personal AI Assistant</h3>
+                        <div class="project-description">
+                            <p>Developed a voice-controlled artificial intelligence assistant using VOSK for fully offline speech recognition, ensuring privacy and fast response times without cloud dependencies.</p>
+                        </div>
+                        <ul class="project-tech-list">
+                            <li>Python</li>
+                            <li>VOSK</li>
+                            <li>Ollama</li>
+                            <li>Voice Auth</li>
+                        </ul>
+                        <div class="project-links">
+                            <a href="https://github.com/blackcoderh4k" target="_blank" aria-label="GitHub Repo"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 4 -->
+                <div class="project-card glass-card">
+                    <div class="project-image">
+                        <div class="project-image-placeholder" style="--accent: #00BFA5;">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="project-image-overlay"></div>
+                    </div>
+                    <div class="project-content">
+                        <p class="project-overline">Android Security</p>
+                        <h3 class="project-title">Banking App Fraud Detection Tool</h3>
+                        <div class="project-description">
+                            <p>Implemented checks for package names, permissions, and fake app indicators with detailed logs and reporting mechanisms to identify malicious banking applications on Android devices.</p>
+                        </div>
+                        <ul class="project-tech-list">
+                            <li>Android Studio</li>
+                            <li>ADB</li>
+                            <li>Java/Kotlin</li>
+                        </ul>
+                        <div class="project-links">
+                            <a href="https://github.com/blackcoderh4k" target="_blank" aria-label="GitHub Repo"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Water Wave Divider -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+            <path d="M0,35 C480,70 960,10 1440,45 L1440,80 L0,80 Z" fill="rgba(79,195,247,0.03)"/>
+        </svg>
+    </div>
+
+    <!-- Services Section (replaces Education/Certifications) -->
+    <section id="services" class="services section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Services</h2>
+                <div class="line"></div>
+            </div>
+
+            <div class="services-grid">
+                <!-- Service 1: Web Development -->
+                <div class="service-card glass-card">
+                    <div class="service-icon-wrap">
+                        <div class="service-icon-glow"></div>
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Web Development</h3>
+                    <p>Full-stack web applications built with modern frameworks. From responsive landing pages to complex SaaS platforms using React, Node.js, Flask, and more.</p>
+                    <div class="service-tags">
+                        <span>React</span>
+                        <span>Node.js</span>
+                        <span>Flask</span>
+                        <span>Full-Stack</span>
+                    </div>
+                </div>
+
+                <!-- Service 2: App Development -->
+                <div class="service-card glass-card">
+                    <div class="service-icon-wrap">
+                        <div class="service-icon-glow"></div>
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>App Development</h3>
+                    <p>Native Android applications with clean architecture, intuitive UIs, and secure backends. From concept wireframes to published Play Store apps.</p>
+                    <div class="service-tags">
+                        <span>Android</span>
+                        <span>Kotlin</span>
+                        <span>Java</span>
+                        <span>Firebase</span>
+                    </div>
+                </div>
+
+                <!-- Service 3: Cybersecurity Consulting -->
+                <div class="service-card glass-card">
+                    <div class="service-icon-wrap">
+                        <div class="service-icon-glow"></div>
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Cybersecurity</h3>
+                    <p>Security audits, vulnerability assessments, and penetration testing. Hardening your applications and infrastructure against modern cyber threats.</p>
+                    <div class="service-tags">
+                        <span>Pen Testing</span>
+                        <span>Audits</span>
+                        <span>Linux</span>
+                        <span>Encryption</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Water Wave Divider -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+            <path d="M0,50 C360,10 720,70 1080,30 C1260,15 1380,50 1440,40 L1440,80 L0,80 Z" fill="rgba(79,195,247,0.03)"/>
+        </svg>
+    </div>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact section">
+        <div class="container">
+            <div class="section-title text-center">
+                <h2>Initialize Connection</h2>
+                <div class="line mx-auto"></div>
+                <p class="contact-subtitle">Data stream is open. Start a transmission.</p>
+            </div>
+
+            <div class="contact-container">
+                <div class="contact-info glass-card">
+                    <h3>Communication Channels</h3>
+                    <p>I am currently open for internships or entry-level roles in software development, IoT security, or AI systems. Whether you have a question or just want to say hi, I'll try my best to get back to you!</p>
+                    
+                    <div class="info-items">
+                        <div class="info-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h4>Email</h4>
+                                <a href="mailto:patelaman10052005@gmail.com">patelaman10052005@gmail.com</a>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-phone-alt"></i>
+                            <div>
+                                <h4>Phone</h4>
+                                <a href="tel:+919399857423">+91 9399857423</a>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fab fa-linkedin"></i>
+                            <div>
+                                <h4>LinkedIn</h4>
+                                <a href="https://www.linkedin.com/in/aman-patel-55994628b" target="_blank">linkedin.com/in/aman-patel-55994628b</a>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h4>Location</h4>
+                                <span>Jabalpur, MP, India</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form-wrapper glass-card">
+                    <form id="contactForm" class="contact-form">
+                        <div class="form-group row">
+                            <div class="input-container half">
+                                <input type="text" id="name" name="name" required placeholder=" ">
+                                <label for="name">Name <span class="required">*</span></label>
+                            </div>
+                            <div class="input-container half">
+                                <input type="email" id="email" name="email" required placeholder=" ">
+                                <label for="email">Email <span class="required">*</span></label>
+                            </div>
+                        </div>
+                        <div class="input-container">
+                            <input type="tel" id="phone" name="phone" placeholder=" ">
+                            <label for="phone">Phone Number</label>
+                        </div>
+                        <div class="input-container">
+                            <textarea id="message" name="message" required placeholder=" "></textarea>
+                            <label for="message">Message Data <span class="required">*</span></label>
+                        </div>
+                        
+                        <div class="form-status" id="formStatus"></div>
+                        
+                        <button type="submit" class="btn primary-btn submit-btn" id="submitBtn">
+                            <span class="btn-text">Transmit Data</span>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-social">
+                <a href="https://github.com/blackcoderh4k" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/aman-patel-55994628b" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <p class="footer-text">Built & Designed by <span class="highlight">Aman Patel</span></p>
+            <p class="copyright">&copy; <span id="year"></span> | All connection encrypted.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/water-effects.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
