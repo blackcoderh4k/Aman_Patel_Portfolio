@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const sqlite3 = require('sqlite3').verbose();
+const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const path = require('path');
 
@@ -17,23 +17,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Database Setup
-const db = new sqlite3.Database('./database.sqlite', (err) => {
-    if (err) {
-        console.error('Error opening database', err.message);
-    } else {
-        console.log('Connected to the SQLite database.');
-        // Create table if it doesn't exist
-        db.run(`CREATE TABLE IF NOT EXISTS contacts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            phone TEXT,
-            message TEXT NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
-    }
+// Database Setup (MongoDB)
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/portfolio')
+    .then(() => console.log('Connected to MongoDB database.'))
+    .catch(err => console.error('Error connecting to MongoDB', err));
+
+// Mongoose Schema & Model
+const contactSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: String,
+    message: { type: String, required: true },
+    created_at: { type: Date, default: Date.now }
 });
+const Contact = mongoose.model('Contact', contactSchema);
 
 // Email Setup (Nodemailer)
 // Note: You need to set these in a .env file
@@ -48,7 +45,7 @@ const transporter = nodemailer.createTransport({
 // API Routes
 
 // 1. Handle Contact Form Submission
-app.post('/api/contact', (req, res) => {
+app.post('/api/contact', async (req, res) => {
     const { name, email, phone, message } = req.body;
 
     // Basic validation
@@ -56,15 +53,11 @@ app.post('/api/contact', (req, res) => {
         return res.status(400).json({ error: 'Name, email, and message are required field.' });
     }
 
-    // Insert into database
-    const sql = `INSERT INTO contacts (name, email, phone, message) VALUES (?, ?, ?, ?)`;
-    db.run(sql, [name, email, phone, message], function(err) {
-        if (err) {
-            console.error('Error inserting into database:', err.message);
-            return res.status(500).json({ error: 'Failed to save message to database.' });
-        }
-
-        const dbId = this.lastID;
+    try {
+        // Insert into MongoDB
+        const newContact = new Contact({ name, email, phone, message });
+        const savedContact = await newContact.save();
+        const dbId = savedContact._id;
 
         // Try to send email
         const mailOptions = {
@@ -95,29 +88,19 @@ ${message}
              transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
                     console.error('Error sending email:', error);
-                    // We still return success because it was saved to DB, but indicate email failed
-                    return res.status(200).json({ 
-                        success: true, 
-                        message: 'Message saved to database, but failed to send email.',
-                        id: dbId 
-                    });
+                    return res.status(200).json({ success: true, message: 'Message saved to database, but failed to send email.', id: dbId });
                 }
                 console.log('Email sent: ' + info.response);
-                res.status(200).json({ 
-                    success: true, 
-                    message: 'Message sent and saved successfully!',
-                    id: dbId 
-                });
+                res.status(200).json({ success: true, message: 'Message sent and saved successfully!', id: dbId });
             });
         } else {
              console.log("Email credentials not configured. Saving to DB only.");
-             res.status(200).json({ 
-                success: true, 
-                message: 'Message saved to database successfully! (Email not configured)',
-                id: dbId 
-            });
+             res.status(200).json({ success: true, message: 'Message saved to database successfully! (Email not configured)', id: dbId });
         }
-    });
+    } catch (err) {
+        console.error('Error inserting into database:', err);
+        return res.status(500).json({ error: 'Failed to save message to database.' });
+    }
 });
 
 // Quick basic auth middleware for admin routes
@@ -133,35 +116,31 @@ const checkAdminPassword = (req, res, next) => {
 };
 
 // 2. Get all contacts (Admin endpoint)
-app.get('/api/contacts', checkAdminPassword, (req, res) => {
-    const sql = `SELECT * FROM contacts ORDER BY created_at DESC`;
-    db.all(sql, [], (err, rows) => {
-        if (err) {
-            console.error('Error fetching contacts:', err.message);
-            return res.status(500).json({ error: 'Failed to fetch contacts.' });
-        }
+app.get('/api/contacts', checkAdminPassword, async (req, res) => {
+    try {
+        const contacts = await Contact.find().sort({ created_at: -1 });
         res.status(200).json({
-            count: rows.length,
-            data: rows
+            count: contacts.length,
+            data: contacts
         });
-    });
+    } catch (err) {
+        console.error('Error fetching contacts:', err);
+        return res.status(500).json({ error: 'Failed to fetch contacts.' });
+    }
 });
 
 // 3. Delete a contact (Admin endpoint)
-app.delete('/api/contacts/:id', checkAdminPassword, (req, res) => {
-    const id = req.params.id;
-    const sql = `DELETE FROM contacts WHERE id = ?`;
-    
-    db.run(sql, id, function(err) {
-        if (err) {
-            console.error('Error deleting contact:', err.message);
-            return res.status(500).json({ error: 'Failed to delete contact.' });
-        }
-        if (this.changes === 0) {
+app.delete('/api/contacts/:id', checkAdminPassword, async (req, res) => {
+    try {
+        const deletedContact = await Contact.findByIdAndDelete(req.params.id);
+        if (!deletedContact) {
             return res.status(404).json({ error: 'Contact not found.' });
         }
         res.status(200).json({ success: true, message: 'Contact deleted successfully.' });
-    });
+    } catch (err) {
+        console.error('Error deleting contact:', err);
+        return res.status(500).json({ error: 'Failed to delete contact.' });
+    }
 });
 
 // Admin Panel Route
@@ -188,6 +167,10 @@ app.use((req, res, next) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+    });
+}
+
+module.exports = app;
