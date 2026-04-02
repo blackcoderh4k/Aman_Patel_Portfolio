@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const sqlite3 = require('sqlite3').verbose();
+const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const path = require('path');
 
@@ -17,23 +17,21 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Database Setup
-const db = new sqlite3.Database('./database.sqlite', (err) => {
-    if (err) {
-        console.error('Error opening database', err.message);
-    } else {
-        console.log('Connected to the SQLite database.');
-        // Create table if it doesn't exist
-        db.run(`CREATE TABLE IF NOT EXISTS contacts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            phone TEXT,
-            message TEXT NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`);
-    }
+// Database Setup (MongoDB)
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/portfolioDB")
+    .then(() => console.log('Connected to the MongoDB database.'))
+    .catch(err => console.error('Error connecting to MongoDB:', err.message));
+
+// Mongoose Schema for Contacts
+const contactSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: String,
+    message: { type: String, required: true },
+    created_at: { type: Date, default: Date.now }
 });
+
+const Contact = mongoose.model('Contact', contactSchema);
 
 // Email Setup (Nodemailer)
 // Note: You need to set these in a .env file
@@ -57,21 +55,18 @@ app.post('/api/contact', (req, res) => {
     }
 
     // Insert into database
-    const sql = `INSERT INTO contacts (name, email, phone, message) VALUES (?, ?, ?, ?)`;
-    db.run(sql, [name, email, phone, message], function(err) {
-        if (err) {
-            console.error('Error inserting into database:', err.message);
-            return res.status(500).json({ error: 'Failed to save message to database.' });
-        }
+    const newContact = new Contact({ name, email, phone, message });
 
-        const dbId = this.lastID;
+    newContact.save()
+        .then(savedContact => {
+            const dbId = savedContact._id;
 
-        // Try to send email
-        const mailOptions = {
-            from: process.env.EMAIL_USER, // Sender address
-            to: 'patelaman10052005@gmail.com', // Receiver address (Aman's email)
-            subject: `New Portfolio Contact from ${name}`,
-            text: `
+            // Try to send email
+            const mailOptions = {
+                from: process.env.EMAIL_USER, // Sender address
+                to: 'patelaman10052005@gmail.com', // Receiver address (Aman's email)
+                subject: `New Portfolio Contact from ${name}`,
+                text: `
 You have received a new message from your portfolio website!
 
 Name: ${name}
@@ -80,44 +75,48 @@ Phone: ${phone || 'Not provided'}
 
 Message:
 ${message}
-            `,
-            html: `
+                `,
+                html: `
 <h3>New Portfolio Contact</h3>
 <p><strong>Name:</strong> ${name}</p>
 <p><strong>Email:</strong> ${email}</p>
 <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
 <p><strong>Message:</strong></p>
 <p>${message.replace(/\n/g, '<br>')}</p>
-            `
-        };
+                `
+            };
 
-        if(process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-             transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    console.error('Error sending email:', error);
-                    // We still return success because it was saved to DB, but indicate email failed
-                    return res.status(200).json({ 
+            if(process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+                 transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        console.error('Error sending email:', error);
+                        // We still return success because it was saved to DB, but indicate email failed
+                        return res.status(200).json({ 
+                            success: true, 
+                            message: 'Message saved to database, but failed to send email.',
+                            id: dbId 
+                        });
+                    }
+                    console.log('Email sent: ' + info.response);
+                    res.status(200).json({ 
                         success: true, 
-                        message: 'Message saved to database, but failed to send email.',
+                        message: 'Message sent and saved successfully!',
                         id: dbId 
                     });
-                }
-                console.log('Email sent: ' + info.response);
-                res.status(200).json({ 
+                });
+            } else {
+                 console.log("Email credentials not configured. Saving to DB only.");
+                 res.status(200).json({ 
                     success: true, 
-                    message: 'Message sent and saved successfully!',
+                    message: 'Message saved to database successfully! (Email not configured)',
                     id: dbId 
                 });
-            });
-        } else {
-             console.log("Email credentials not configured. Saving to DB only.");
-             res.status(200).json({ 
-                success: true, 
-                message: 'Message saved to database successfully! (Email not configured)',
-                id: dbId 
-            });
-        }
-    });
+            }
+        })
+        .catch(err => {
+            console.error('Error saving to database:', err.message);
+            return res.status(500).json({ error: 'Failed to save message to database.' });
+        });
 });
 
 // Quick basic auth middleware for admin routes
@@ -134,34 +133,44 @@ const checkAdminPassword = (req, res, next) => {
 
 // 2. Get all contacts (Admin endpoint)
 app.get('/api/contacts', checkAdminPassword, (req, res) => {
-    const sql = `SELECT * FROM contacts ORDER BY created_at DESC`;
-    db.all(sql, [], (err, rows) => {
-        if (err) {
+    Contact.find().sort({ created_at: -1 })
+        .then(contacts => {
+            // Map _id to id so frontend doesn't break
+            const formattedContacts = contacts.map(c => ({
+                id: c._id,
+                name: c.name,
+                email: c.email,
+                phone: c.phone,
+                message: c.message,
+                created_at: c.created_at
+            }));
+
+            res.status(200).json({
+                count: formattedContacts.length,
+                data: formattedContacts
+            });
+        })
+        .catch(err => {
             console.error('Error fetching contacts:', err.message);
             return res.status(500).json({ error: 'Failed to fetch contacts.' });
-        }
-        res.status(200).json({
-            count: rows.length,
-            data: rows
         });
-    });
 });
 
 // 3. Delete a contact (Admin endpoint)
 app.delete('/api/contacts/:id', checkAdminPassword, (req, res) => {
     const id = req.params.id;
-    const sql = `DELETE FROM contacts WHERE id = ?`;
     
-    db.run(sql, id, function(err) {
-        if (err) {
+    Contact.findByIdAndDelete(id)
+        .then(deletedContact => {
+            if (!deletedContact) {
+                return res.status(404).json({ error: 'Contact not found.' });
+            }
+            res.status(200).json({ success: true, message: 'Contact deleted successfully.' });
+        })
+        .catch(err => {
             console.error('Error deleting contact:', err.message);
             return res.status(500).json({ error: 'Failed to delete contact.' });
-        }
-        if (this.changes === 0) {
-            return res.status(404).json({ error: 'Contact not found.' });
-        }
-        res.status(200).json({ success: true, message: 'Contact deleted successfully.' });
-    });
+        });
 });
 
 // Admin Panel Route
@@ -187,7 +196,12 @@ app.use((req, res, next) => {
     }
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+// Start the server (Only if not running in serverless mode like Vercel)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+    });
+}
+
+// Export the Express API so Vercel can find it
+module.exports = app;
