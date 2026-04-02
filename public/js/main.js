@@ -219,14 +219,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // --- Parallax Effect on Hero (Merged into Scroll Event) ---
                 const heroBgText = document.querySelector('.hero-bg-text');
-                const heroAvatar = document.querySelector('.hero-avatar-corner');
+                const heroVisual = document.querySelector('.hero-visual-centered');
                 
                 if (lastScrollY < window.innerHeight) {
                     if (heroBgText) {
-                        heroBgText.style.transform = `translate(-50%, calc(-50% + ${lastScrollY * 0.3}px))`;
+                        heroBgText.style.transform = `translate(-50%, calc(-50% + ${lastScrollY * 0.4}px))`;
                     }
-                    if (heroAvatar) {
-                        heroAvatar.style.transform = `translateY(${lastScrollY * 0.1}px)`;
+                    if (heroVisual) {
+                        heroVisual.style.transform = `translateY(${lastScrollY * 0.25}px)`;
                     }
                 }
                 
