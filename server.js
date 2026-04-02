@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const mongoose = require('mongoose');
+const { sql } = require('@vercel/postgres');
 const nodemailer = require('nodemailer');
 const path = require('path');
 
@@ -17,21 +17,23 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Database Setup (MongoDB)
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/portfolioDB")
-    .then(() => console.log('Connected to the MongoDB database.'))
-    .catch(err => console.error('Error connecting to MongoDB:', err.message));
-
-// Mongoose Schema for Contacts
-const contactSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    phone: String,
-    message: { type: String, required: true },
-    created_at: { type: Date, default: Date.now }
-});
-
-const Contact = mongoose.model('Contact', contactSchema);
+// Database Setup (Vercel Postgres - Table Setup)
+async function setupDatabase() {
+    try {
+        await sql`CREATE TABLE IF NOT EXISTS contacts (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            phone VARCHAR(50),
+            message TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+        console.log("Postgres database ready.");
+    } catch (err) {
+        console.error("Database setup error:", err.message);
+    }
+}
+setupDatabase();
 
 // Email Setup (Nodemailer)
 // Note: You need to set these in a .env file
@@ -54,12 +56,14 @@ app.post('/api/contact', (req, res) => {
         return res.status(400).json({ error: 'Name, email, and message are required field.' });
     }
 
-    // Insert into database
-    const newContact = new Contact({ name, email, phone, message });
-
-    newContact.save()
-        .then(savedContact => {
-            const dbId = savedContact._id;
+    // Insert into database using Vercel Postgres
+    sql`
+        INSERT INTO contacts (name, email, phone, message)
+        VALUES (${name}, ${email}, ${phone}, ${message})
+        RETURNING id
+    `
+        .then(result => {
+            const dbId = result.rows[0].id;
 
             // Try to send email
             const mailOptions = {
@@ -133,21 +137,13 @@ const checkAdminPassword = (req, res, next) => {
 
 // 2. Get all contacts (Admin endpoint)
 app.get('/api/contacts', checkAdminPassword, (req, res) => {
-    Contact.find().sort({ created_at: -1 })
-        .then(contacts => {
-            // Map _id to id so frontend doesn't break
-            const formattedContacts = contacts.map(c => ({
-                id: c._id,
-                name: c.name,
-                email: c.email,
-                phone: c.phone,
-                message: c.message,
-                created_at: c.created_at
-            }));
+    sql`SELECT * FROM contacts ORDER BY created_at DESC`
+        .then(result => {
+            const contacts = result.rows;
 
             res.status(200).json({
-                count: formattedContacts.length,
-                data: formattedContacts
+                count: contacts.length,
+                data: contacts
             });
         })
         .catch(err => {
@@ -160,9 +156,9 @@ app.get('/api/contacts', checkAdminPassword, (req, res) => {
 app.delete('/api/contacts/:id', checkAdminPassword, (req, res) => {
     const id = req.params.id;
     
-    Contact.findByIdAndDelete(id)
-        .then(deletedContact => {
-            if (!deletedContact) {
+    sql`DELETE FROM contacts WHERE id = ${id} RETURNING id`
+        .then(result => {
+            if (result.rowCount === 0) {
                 return res.status(404).json({ error: 'Contact not found.' });
             }
             res.status(200).json({ success: true, message: 'Contact deleted successfully.' });
