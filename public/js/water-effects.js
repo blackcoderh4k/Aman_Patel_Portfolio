@@ -24,7 +24,7 @@ class CosmicParticleSystem {
     }
 
     init() {
-        const count = Math.min(150, Math.floor(window.innerWidth / 10));
+        const count = Math.min(50, Math.floor(window.innerWidth / 30));
         for (let i = 0; i < count; i++) {
             this.particles.push(this.createParticle());
         }
@@ -110,21 +110,21 @@ class CosmicParticleSystem {
 
     drawParticle(p) {
         const ctx = this.ctx;
-        ctx.save();
         
         // Twinkle effect
         const twinkle = 0.6 + 0.4 * Math.sin(this.frame * p.twinkleSpeed + p.twinklePhase);
         const alpha = p.life !== Infinity ? p.opacity * (p.life / p.maxLife) * twinkle : p.opacity * twinkle;
         
-        // Outer glow
-        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 5);
-        gradient.addColorStop(0, `hsla(${p.hue}, ${p.saturation}%, ${p.lightness}%, ${alpha})`);
-        gradient.addColorStop(0.3, `hsla(${p.hue}, ${p.saturation}%, ${p.lightness}%, ${alpha * 0.3})`);
-        gradient.addColorStop(1, `hsla(${p.hue}, ${p.saturation}%, ${p.lightness}%, 0)`);
-        
-        ctx.fillStyle = gradient;
+        // Outer glow (Replaced highly expensive radial gradient with a simple overlay)
+        ctx.fillStyle = `hsla(${p.hue}, ${p.saturation}%, ${p.lightness}%, ${alpha * 0.15})`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size * 5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Secondary glow
+        ctx.fillStyle = `hsla(${p.hue}, ${p.saturation}%, ${p.lightness}%, ${alpha * 0.4})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
         ctx.fill();
         
         // Bright core
@@ -132,26 +132,17 @@ class CosmicParticleSystem {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size * 0.6, 0, Math.PI * 2);
         ctx.fill();
-        
-        ctx.restore();
     }
 
     drawRipple(r) {
         const ctx = this.ctx;
-        ctx.save();
         
-        // Dual-tone ripple
-        const gradient = ctx.createRadialGradient(r.x, r.y, r.radius - 2, r.x, r.y, r.radius + 2);
-        gradient.addColorStop(0, `hsla(185, 90%, 55%, 0)`);
-        gradient.addColorStop(0.5, `hsla(185, 90%, 55%, ${r.opacity})`);
-        gradient.addColorStop(1, `hsla(275, 80%, 55%, 0)`);
-        
+        // Solid high-performance stroke instead of radial gradient
         ctx.strokeStyle = `hsla(185, 90%, 55%, ${r.opacity})`;
         ctx.lineWidth = r.lineWidth;
         ctx.beginPath();
         ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
         ctx.stroke();
-        ctx.restore();
     }
 
     update() {
@@ -223,22 +214,14 @@ class CosmicParticleSystem {
                 const dy = this.particles[i].y - this.particles[j].y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist < 110) {
-                    const lineAlpha = 0.06 * (1 - dist / 110);
-                    // Gradient from cyan to purple
-                    this.ctx.save();
-                    const grad = this.ctx.createLinearGradient(
-                        this.particles[i].x, this.particles[i].y,
-                        this.particles[j].x, this.particles[j].y
-                    );
-                    grad.addColorStop(0, `hsla(185, 90%, 55%, ${lineAlpha})`);
-                    grad.addColorStop(1, `hsla(275, 80%, 55%, ${lineAlpha})`);
-                    this.ctx.strokeStyle = grad;
+                    const lineAlpha = 0.08 * (1 - dist / 110);
+                    // Eliminated expensive createLinearGradient
+                    this.ctx.strokeStyle = `hsla(220, 80%, 70%, ${lineAlpha})`;
                     this.ctx.lineWidth = 0.5;
                     this.ctx.beginPath();
                     this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
                     this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
                     this.ctx.stroke();
-                    this.ctx.restore();
                 }
             }
         }

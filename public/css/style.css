@@ -67,6 +67,7 @@ body {
     opacity: 0.15;
     border-radius: 50%;
     animation: floatBlob 20s ease-in-out infinite alternate;
+    will-change: transform;
 }
 
 .glow-left {
@@ -133,6 +134,7 @@ body {
     z-index: 9999;
     pointer-events: none;
     transition: opacity 0.3s;
+    will-change: transform, left, top;
 }
 
 .cursor-dot {
@@ -203,6 +205,7 @@ body {
     overflow: hidden;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
                 inset 0 1px 0 rgba(0, 240, 255, 0.05);
+    will-change: transform, box-shadow;
 }
 
 .glass-card::before {
@@ -718,6 +721,7 @@ body {
                heroFloat 5s ease-in-out 2.7s infinite !important;
     pointer-events: auto;
     transform-origin: bottom center;
+    will-change: transform, opacity;
 }
 
 @keyframes heroEntrance {

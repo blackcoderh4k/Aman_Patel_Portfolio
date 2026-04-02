@@ -24,18 +24,28 @@ document.addEventListener('DOMContentLoaded', () => {
     window.breathingMode = 'water'; // 'water' or 'sun'
     
     if (cursorDot && cursorOutline) {
+        let isCursorMoving = false;
+        let cursorX = window.innerWidth / 2;
+        let cursorY = window.innerHeight / 2;
+
         window.addEventListener('mousemove', (e) => {
-            const posX = e.clientX;
-            const posY = e.clientY;
+            cursorX = e.clientX;
+            cursorY = e.clientY;
             
-            cursorDot.style.left = `${posX}px`;
-            cursorDot.style.top = `${posY}px`;
-            
-            cursorOutline.animate({
-                left: `${posX}px`,
-                top: `${posY}px`
-            }, { duration: 400, fill: "forwards" });
-        });
+            if (!isCursorMoving) {
+                isCursorMoving = true;
+                requestAnimationFrame(() => {
+                    cursorDot.style.left = `${cursorX}px`;
+                    cursorDot.style.top = `${cursorY}px`;
+                    
+                    cursorOutline.animate({
+                        left: `${cursorX}px`,
+                        top: `${cursorY}px`
+                    }, { duration: 400, fill: "forwards" });
+                    isCursorMoving = false;
+                });
+            }
+        }, { passive: true });
 
         // Hover effects on buttons and links
         const hoverElements = document.querySelectorAll('a, button, .btn');
@@ -66,19 +76,32 @@ document.addEventListener('DOMContentLoaded', () => {
     let breathingTimeout;
     
     if (tanjiroImg && heroSection) {
+        let isHeroHover = false;
+        let heroX = 0;
+        let heroY = 0;
+        
         // Subtle tilt on hero section for corner avatar
         heroSection.addEventListener('mousemove', (e) => {
-            const rect = heroSection.getBoundingClientRect();
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            heroX = e.clientX;
+            heroY = e.clientY;
             
-            const rotateY = ((x - centerX) / centerX) * 6;
-            const rotateX = ((y - centerY) / centerY) * -6;
-            
-            tanjiroImg.style.transform = `perspective(1000px) rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
-        });
+            if (!isHeroHover) {
+                isHeroHover = true;
+                requestAnimationFrame(() => {
+                    const rect = heroSection.getBoundingClientRect();
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const x = heroX - rect.left;
+                    const y = heroY - rect.top;
+                    
+                    const rotateY = ((x - centerX) / centerX) * 6;
+                    const rotateX = ((y - centerY) / centerY) * -6;
+                    
+                    tanjiroImg.style.transform = `perspective(1000px) rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+                    isHeroHover = false;
+                });
+            }
+        }, { passive: true });
         
         heroSection.addEventListener('mouseleave', () => {
             tanjiroImg.style.transform = 'perspective(1000px) rotateY(0) rotateX(0)';
@@ -161,31 +184,56 @@ document.addEventListener('DOMContentLoaded', () => {
     const sections = document.querySelectorAll('.section[id]');
     const navItems = document.querySelectorAll('.nav-links a');
     
-    // Scroll handler
+    // Scroll handler (Optimized)
+    let isScrolling = false;
+    let lastScrollY = window.scrollY;
+
     window.addEventListener('scroll', () => {
-        // Navbar style on scroll
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
+        lastScrollY = window.scrollY;
+        
+        if (!isScrolling) {
+            isScrolling = true;
+            requestAnimationFrame(() => {
+                // Navbar style on scroll
+                if (lastScrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+
+                // Active link highlighting based on scroll position
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - 200;
+                    if (lastScrollY >= sectionTop) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('href') === `#${current}`) {
+                        item.classList.add('active');
+                    }
+                });
+                
+                // --- Parallax Effect on Hero (Merged into Scroll Event) ---
+                const heroBgText = document.querySelector('.hero-bg-text');
+                const heroAvatar = document.querySelector('.hero-avatar-corner');
+                
+                if (lastScrollY < window.innerHeight) {
+                    if (heroBgText) {
+                        heroBgText.style.transform = `translate(-50%, calc(-50% + ${lastScrollY * 0.3}px))`;
+                    }
+                    if (heroAvatar) {
+                        heroAvatar.style.transform = `translateY(${lastScrollY * 0.1}px)`;
+                    }
+                }
+                
+                isScrolling = false;
+            });
         }
-
-        // Active link highlighting based on scroll position
-        let current = '';
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop - 200;
-            if (window.scrollY >= sectionTop) {
-                current = section.getAttribute('id');
-            }
-        });
-
-        navItems.forEach(item => {
-            item.classList.remove('active');
-            if (item.getAttribute('href') === `#${current}`) {
-                item.classList.add('active');
-            }
-        });
-    });
+    }, { passive: true });
     
     // Mobile menu
     hamburger.addEventListener('click', () => {
@@ -245,38 +293,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const tiltCards = document.querySelectorAll('.project-card, .about-text, .contact-info, .contact-form-wrapper, .service-card');
     
     tiltCards.forEach(card => {
+        let isCardTilting = false;
+        let cardX = 0, cardY = 0;
+        
         card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = (y - centerY) / centerY * -4;
-            const rotateY = (x - centerX) / centerX * 4;
+            cardX = e.clientX; cardY = e.clientY;
             
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
-        });
+            if (!isCardTilting) {
+                isCardTilting = true;
+                requestAnimationFrame(() => {
+                    const rect = card.getBoundingClientRect();
+                    const x = cardX - rect.left;
+                    const y = cardY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = (y - centerY) / centerY * -4;
+                    const rotateY = (x - centerX) / centerX * 4;
+                    
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+                    isCardTilting = false;
+                });
+            }
+        }, { passive: true });
         
         card.addEventListener('mouseleave', () => {
             card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
         });
     });
 
-    // --- Parallax Effect on Hero ---
-    const heroBgText = document.querySelector('.hero-bg-text');
-    const heroAvatar = document.querySelector('.hero-avatar-corner');
-    
-    window.addEventListener('scroll', () => {
-        const scrollY = window.scrollY;
-        if (scrollY < window.innerHeight) {
-            if (heroBgText) {
-                heroBgText.style.transform = `translate(-50%, calc(-50% + ${scrollY * 0.3}px))`;
-            }
-            if (heroAvatar) {
-                heroAvatar.style.transform = `translateY(${scrollY * 0.1}px)`;
-            }
-        }
-    });
+    // (Parallax is now merged into the master scroll listener for performance)
 
     // --- Stats Counter ---
     const counters = document.querySelectorAll('.counter');

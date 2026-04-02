@@ -178,17 +178,17 @@ app.get('/admin', (req, res) => {
     });
 });
 
-// Fallback to index.html for undefined routes (SPA behavior if needed)
+// Fallback to 404.html for undefined routes
 app.use((req, res, next) => {
     if (req.method === 'GET' && !req.path.startsWith('/api/')) {
-        res.sendFile('index.html', { root: path.join(__dirname, 'public') }, (err) => {
+        res.status(404).sendFile('404.html', { root: path.join(__dirname, 'public') }, (err) => {
             if (err) {
-                console.error(`[Error] Failed to send index.html:`, err);
-                next(err);
+                console.error(`[Error] Failed to send 404.html:`, err);
+                res.status(404).send("Page not found.");
             }
         });
     } else {
-        next();
+        res.status(404).json({ error: "API route not found." });
     }
 });
 
