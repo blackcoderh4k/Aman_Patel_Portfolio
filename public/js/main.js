@@ -362,15 +362,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const formStatus = document.getElementById('formStatus');
     const submitBtn = document.getElementById('submitBtn');
     const btnText = submitBtn.querySelector('.btn-text');
+    const btnIcon = submitBtn.querySelector('i');
 
     if (contactForm) {
         contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const originalText = btnText.innerText;
-            btnText.innerText = 'Transmitting...';
+            // -- Show sending animation --
             submitBtn.disabled = true;
-            formStatus.innerHTML = '<span style="color: var(--text-muted)">Establishing connection...</span>';
+            submitBtn.classList.add('is-sending');
+            btnText.innerText = 'Sending';
+            btnIcon.className = 'fas fa-circle-notch fa-spin';
+
+            // Show the orbital sending animation in status area
+            formStatus.innerHTML = `
+                <div class="sending-animation">
+                    <div class="sending-orbit">
+                        <div class="orbit-dot"></div>
+                    </div>
+                    <div class="sending-pulse-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>`;
+            formStatus.classList.add('visible');
             
             const formData = {
                 name: document.getElementById('name').value,
@@ -391,16 +405,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
                 
                 if (response.ok) {
-                    formStatus.innerHTML = `<span class="status-success"><i class="fas fa-check-circle"></i> ${data.message}</span>`;
+                    // Show success checkmark animation
+                    formStatus.innerHTML = `
+                        <div class="success-animation">
+                            <div class="success-checkmark">
+                                <svg viewBox="0 0 52 52">
+                                    <circle cx="26" cy="26" r="25" fill="none"/>
+                                    <path fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                                </svg>
+                            </div>
+                        </div>`;
                     contactForm.reset();
+                    
+                    // Auto-clear success after 2.5s
+                    setTimeout(() => {
+                        formStatus.classList.remove('visible');
+                        setTimeout(() => { formStatus.innerHTML = ''; }, 400);
+                    }, 2500);
                 } else {
-                    formStatus.innerHTML = `<span class="status-error"><i class="fas fa-exclamation-triangle"></i> Error: ${data.error}</span>`;
+                    formStatus.innerHTML = `<span class="status-error"><i class="fas fa-exclamation-triangle"></i> ${data.error}</span>`;
+                    setTimeout(() => {
+                        formStatus.classList.remove('visible');
+                        setTimeout(() => { formStatus.innerHTML = ''; }, 400);
+                    }, 5000);
                 }
             } catch (error) {
-                formStatus.innerHTML = `<span class="status-error"><i class="fas fa-exclamation-triangle"></i> Connection Failed. Ensure server is running.</span>`;
+                formStatus.innerHTML = `<span class="status-error"><i class="fas fa-exclamation-triangle"></i> Connection failed. Server may be offline.</span>`;
+                setTimeout(() => {
+                    formStatus.classList.remove('visible');
+                    setTimeout(() => { formStatus.innerHTML = ''; }, 400);
+                }, 5000);
             } finally {
-                btnText.innerText = originalText;
+                btnText.innerText = 'Send';
+                btnIcon.className = 'fas fa-paper-plane';
                 submitBtn.disabled = false;
+                submitBtn.classList.remove('is-sending');
             }
         });
     }
