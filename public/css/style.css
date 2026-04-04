@@ -1582,6 +1582,29 @@ body {
     cursor: none;
 }
 
+.submit-btn .btn-text {
+    position: relative;
+    min-width: 45px;
+    text-align: center;
+    transition: color 0.3s ease;
+}
+
+.submit-btn:hover .btn-text {
+    color: transparent;
+}
+
+.submit-btn:hover .btn-text::before {
+    content: attr(data-hover);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--main-color);
+    font-size: 1.1rem;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
 .form-status {
     text-align: center;
     font-family: var(--font-code);

@@ -170,10 +170,10 @@ app.delete('/api/contacts/:id', checkAdminPassword, (req, res) => {
 });
 
 // Admin Panel Route
-app.get('/admin', (req, res) => {
-    res.sendFile('admin.html', { root: path.join(__dirname, 'public') }, (err) => {
+app.get('/secure-portal-access', (req, res) => {
+    res.sendFile('secure-portal-access.html', { root: path.join(__dirname, 'public') }, (err) => {
         if (err) {
-             res.status(404).send("Admin page not found. Make sure admin.html exists.");
+             res.status(404).send("Secure portal page not found. Make sure secure-portal-access.html exists.");
         }
     });
 });
